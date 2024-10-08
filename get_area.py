@@ -1,11 +1,14 @@
 from PIL import Image
 
-image = Image.open('images/ten.png')
+def get_nontransparent_area(image_name, image_format):
+    image = Image.open(f'images/{image_name}.{image_format}')
+    if image.mode == 'RGBA':
+        # getdata возвращает содержимое изображения в виде набора объектов
+        nontransparent_pixels = sum(1 for pixel in image.getdata() if pixel[3] == 255)
+        return nontransparent_pixels
+    else:
+        return image.width * image.height
 
-if image.mode == 'RGBA':
-    pixels = image.getdata()
-    nontransparent_pixels = sum(1 for pixel in pixels if pixel[3] == 255)
 
-    print(nontransparent_pixels)
-else:
-    print('aaaa')
+area = get_nontransparent_area('ten', 'png')
+print(area)

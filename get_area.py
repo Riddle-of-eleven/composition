@@ -11,4 +11,3 @@ def get_nontransparent_area(image_name, image_format):
 
 
 area = get_nontransparent_area('ten', 'png')
-print(area)

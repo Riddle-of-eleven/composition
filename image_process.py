@@ -1,6 +1,7 @@
 import cv2
-import numpy
+import numpy as np
 import matplotlib
+import matplotlib.pyplot as plt
 import psd_tools
 import math
 
@@ -20,6 +21,7 @@ logging.getLogger('psd_tools').setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module='psd_tools')
 
 
+file = 'img'
 
 image = utility.open_psd_file('img')
 # ищем слой по имени
@@ -139,7 +141,7 @@ a2 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thir
 a3 = False
 a4 = False
 
-print(a1)
+# print(a1)
 
 # оценка композиционного центра
 composition_center_evaluation = {
@@ -153,3 +155,17 @@ composition_center_evaluation = {
 }
 
 # pprint.pprint(composition_center_evaluation)
+
+
+
+# получение слоя в виде numpy массива
+center_layer = utility.find_layer_by_name(file, 'center')
+composite = center_layer.composite()
+array = np.array(composite)
+
+# print(array)
+
+
+# cat = cv2.imread('images/cat.jpg')
+# print(cat)
+

@@ -1,5 +1,6 @@
 from psd_tools import PSDImage
 import math
+import matplotlib.pyplot as plt
 
 # функция, открывающая файл .psd
 def open_psd_file(file_path):
@@ -58,3 +59,10 @@ def get_angle_by_sides(side_a, side_b, side_opposite):
     cos_angle = (side_a ** 2 + side_b ** 2 - side_opposite ** 2) / (2 * side_a * side_b)
     angle_radians = math.acos(cos_angle)
     return math.degrees(angle_radians)
+
+
+# функция визулизации numpy массива изображения
+def show_image(image):
+    plt.imshow(image)
+    plt.axis('off')
+    plt.show()

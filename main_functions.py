@@ -71,4 +71,4 @@ def get_area_ratio(file_path, layer_name):
 # def get_horison_angle(file_path, layer_name):
 
 
-print(utility.get_all_paths(CURRENT_FILE))
+# print(utility.get_all_paths(CURRENT_FILE))

@@ -10,6 +10,8 @@ import logging
 import warnings
 
 import utility
+import main_functions as main
+import evaluation
 import consts
 from consts import Grid
 
@@ -22,6 +24,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='psd_tools')
 image = utility.open_psd_file('img')
 # ищем слой по имени
 layer = utility.find_layer_by_name('img', 'horizon')
+center = utility.find_layer_by_name('img', 'center')
 
 # стороны
 width = layer.width
@@ -57,47 +60,96 @@ horizontal_third = height / 3
 image_thirds = {
     Grid.vl: {
         # допуск области
-        'threshold_range': {
-            consts.left: int(vertical_third - grid_vertical_extension),
-            consts.right: int(vertical_third + grid_vertical_extension),
-        },
+        'threshold_range': [
+            int(vertical_third - grid_vertical_extension),
+            int(vertical_third + grid_vertical_extension),
+        ],
         # допуск точности линии
-        'precision_threshold_range': {
-
-        },
-
+        'precision_threshold_range': [
+            int(vertical_third - grid_vertical_precision_extension),
+            int(vertical_third + grid_vertical_precision_extension),
+        ],
         consts.main: int(vertical_third),
     },
     Grid.vr: {
-        consts.left: int(vertical_third * 2 - grid_vertical_extension),
-        consts.right: int(vertical_third * 2 + grid_vertical_extension),
+        # допуск области
+        'threshold_range': [
+            int(vertical_third * 2 - grid_vertical_extension),
+            int(vertical_third * 2 + grid_vertical_extension),
+        ],
+        # допуск точности линии
+        'precision_threshold_range': [
+            int(vertical_third * 2 - grid_vertical_precision_extension),
+            int(vertical_third * 2 + grid_vertical_precision_extension),
+        ],
         consts.main: int(vertical_third * 2),
     },
     Grid.ht: {
-        consts.top: int(horizontal_third - grid_horizontal_extension),
-        consts.bottom: int(horizontal_third + grid_horizontal_extension),
+        # допуск области
+        'threshold_range': [
+            int(horizontal_third - grid_horizontal_extension),
+            int(horizontal_third + grid_horizontal_extension),
+        ],
+        # допуск точности линии
+        'precision_threshold_range': [
+            int(horizontal_third - grid_horizontal_precision_extension),
+            int(horizontal_third + grid_horizontal_precision_extension),
+        ],
         consts.main: int(horizontal_third),
     },
     Grid.hb: {
-        consts.top: int(horizontal_third * 2 - grid_horizontal_extension),
-        consts.bottom: int(horizontal_third * 2 + grid_horizontal_extension),
+        # допуск области
+        'threshold_range': [
+            int(horizontal_third * 2 - grid_horizontal_extension),
+            int(horizontal_third * 2 + grid_horizontal_extension),
+        ],
+        # допуск точности линии
+        'precision_threshold_range': [
+            int(horizontal_third * 2 - grid_horizontal_precision_extension),
+            int(horizontal_third * 2 + grid_horizontal_precision_extension),
+        ],
         consts.main: int(horizontal_third * 2),
     },
 }
 
 
-# horizontal_range = {
-#     'top': image_thirds[Grid.ht] - grid_horizontal_extension,
-#     'bottom': image_thirds[Grid.ht] + grid_horizontal_extension,
-# }
+# допуск угла
+angle_threshold = 2 # в градусах
 
-# разница между значениями horizon и третей
-# horizon_diff = True if (horizon_position > horizontal_range[Grid.top]) and (horizon_position < horizontal_range[Grid.bottom]) else False
+# оценка горизонта
+horizon_evaluation = {
+    'angle': angle_degrees,
+    'position': horizon_position,
+    'top_third': {
+        'main': True if (horizon_position > image_thirds[Grid.ht]['threshold_range'][0]) and (horizon_position < image_thirds[Grid.ht]['threshold_range'][1]) else False,
+        'precision': True if (horizon_position > image_thirds[Grid.ht]['precision_threshold_range'][0]) and (horizon_position < image_thirds[Grid.ht]['precision_threshold_range'][1]) else False,
+    },
+    'bottom_third': {
+        'main': True if (horizon_position > image_thirds[Grid.hb]['threshold_range'][0]) and (horizon_position < image_thirds[Grid.hb]['threshold_range'][1]) else False,
+        'precision': True if (horizon_position > image_thirds[Grid.hb]['precision_threshold_range'][0]) and (horizon_position < image_thirds[Grid.hb]['precision_threshold_range'][1]) else False,
+    }
+}
 
-# print(f'горизонт {horizon_position}')
-# print(f'диапазон сверху {horizontal_range[Grid.top]}')
-# print(f'диапазон снизу {horizontal_range[Grid.bottom]}')
-# print(f'верхняя линия {image_thirds[Grid.ht]}')
-# print(horizon_diff)
 
-print(f'верхняя горизонтальная {image_thirds[Grid.ht]}')
+# площадь композиционного центра
+center_area = main.get_area_from_layer('img', 'center')
+# пересечение с точками силы
+a1 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thirds[Grid.vl][consts.main]], center)
+a2 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thirds[Grid.vr][consts.main]], center)
+a3 = False
+a4 = False
+
+print(a1)
+
+# оценка композиционного центра
+composition_center_evaluation = {
+    'position': [center.top, center.left],
+    # 'size': [center.width, center.height],
+    'area_ratio': center_area / (image.width * image.height), # отношение площади композиционного центра к площади изображения
+    'area': center_area,
+    # 'powerpoint': {
+    #     'a1': True if ()
+    # }
+}
+
+# pprint.pprint(composition_center_evaluation)

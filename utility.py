@@ -1,6 +1,8 @@
 from psd_tools import PSDImage
 import math
 import matplotlib.pyplot as plt
+import numpy as np
+import cv2
 
 # функция, открывающая файл .psd
 def open_psd_file(file_path):
@@ -52,7 +54,6 @@ def find_layer_by_name(file_path, name):
 
 
 
-# математические функции
 
 # функция расчёта угла треугольника на основе трёх сторон
 def get_angle_by_sides(side_a, side_b, side_opposite):
@@ -62,7 +63,14 @@ def get_angle_by_sides(side_a, side_b, side_opposite):
 
 
 # функция визулизации numpy массива изображения
-def show_image(image):
-    plt.imshow(image)
+def show_image(image, gray=None):
+    if gray is None:
+        plt.imshow(image)
+    else:
+        plt.imshow(image, cmap='gray')
     plt.axis('off')
     plt.show()
+
+# функция преобразования изображения (в виде numpy массива) в оттенки серого
+def convert_to_gray(image):
+    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

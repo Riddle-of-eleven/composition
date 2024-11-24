@@ -134,25 +134,25 @@ horizon_evaluation = {
 
 
 # площадь композиционного центра
-center_area = main.get_area_from_layer('img', 'center')
+# center_area = main.get_area_from_layer('img', 'center')
 # пересечение с точками силы
-a1 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thirds[Grid.vl][consts.main]], center)
-a2 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thirds[Grid.vr][consts.main]], center)
-a3 = False
-a4 = False
+# a1 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thirds[Grid.vl][consts.main]], center)
+# a2 = evaluation.check_powerpoint([image_thirds[Grid.ht][consts.main], image_thirds[Grid.vr][consts.main]], center)
+# a3 = False
+# a4 = False
 
 # print(a1)
 
 # оценка композиционного центра
-composition_center_evaluation = {
-    'position': [center.top, center.left],
+# composition_center_evaluation = {
+    # 'position': [center.top, center.left],
     # 'size': [center.width, center.height],
-    'area_ratio': center_area / (image.width * image.height), # отношение площади композиционного центра к площади изображения
-    'area': center_area,
+    # 'area_ratio': center_area / (image.width * image.height), # отношение площади композиционного центра к площади изображения
+    # 'area': center_area,
     # 'powerpoint': {
     #     'a1': True if ()
     # }
-}
+# }
 
 # pprint.pprint(composition_center_evaluation)
 
@@ -161,11 +161,28 @@ composition_center_evaluation = {
 # получение слоя в виде numpy массива
 center_layer = utility.find_layer_by_name(file, 'center')
 composite = center_layer.composite()
-array = np.array(composite)
+array = utility.convert_to_gray(np.array(composite))
 
 # print(array)
 
 
-# cat = cv2.imread('images/cat.jpg')
-# print(cat)
+# нахождение объекта в пределах линии сетки
 
+# background = utility.find_layer_by_name(file, 'image')
+# gray_image = utility.convert_to_gray(background.composite())
+
+# print(center_layer.bbox)
+left = center_layer.left
+top = center_layer.top
+
+# правая вертикальная
+flag = 0
+for i in range(center_layer.width):
+    position = i + left
+    # print(f"{image_thirds[Grid.vr]['threshold_range'][0]}, {image_thirds[Grid.vr]['threshold_range'][1]}")
+    if (array[0][i] != 255) and (position > image_thirds[Grid.vr]['threshold_range'][0]) and (position < image_thirds[Grid.vr]['threshold_range'][1]):
+        print(f"элемент: {array[0][i]}, позиция: {position}")
+        flag += 1
+
+percentage = flag / center_layer.width
+print(percentage)

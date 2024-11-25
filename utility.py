@@ -74,3 +74,10 @@ def show_image(image, gray=None):
 # функция преобразования изображения (в виде numpy массива) в оттенки серого
 def convert_to_gray(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+
+
+# визуализация изображения с сеткой и допусками сетки
+def show_image_with_grid(image, grid):
+    grid_mask = [[255 for col in range(image.width)] for row in range(image.height)]
+    return grid_mask

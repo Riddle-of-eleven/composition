@@ -1,5 +1,6 @@
 from psd_tools import PSDImage
 import numpy as np
+import cv2
 
 # функция, открывающая файл .psd
 def open_psd_file(file_path):
@@ -30,6 +31,13 @@ def get_layer(psd, layer_name):
             return layer
     return None
 
+# функция, возвращающая композицию слоёв или слой по имени в виде numpy 
+        # потому что composite() возвращает PIL
+def get_image(psd, layer_name=None):
+    if layer_name: 
+        layer = get_layer(psd, layer_name)
+        if layer is None: raise Exception('Выбранного слоя не существует')
+    return np.array(psd.composite())
 
 ##############
 
@@ -72,8 +80,27 @@ def get_layer_coordinates(psd, layer_name):
         return None
 
 
+##############
+
+## СВЯЗАННОЕ С АНАЛИЗОМ ИЗОБРАЖЕНИЯ
+
+# функция, получающая на изображении или выбранном слое оттенки серого
+def get_shades(psd, layer=None):
+    if type(psd) is not np.ndarray:
+        psd = get_image(psd, layer)
+
+    colors = set()
+    for index, row in enumerate(psd):
+        for pixel in row:
+            colors.add(int(pixel))
+    return sorted(colors, reverse=True)
 
 
-# конвертация .psd в массив numpy
-def psd_to_numpy(psd):
-    return np.array(psd.composite())
+##############
+
+## ВСЯКИЕ СЛУЖЕБНЫЕ ФУНКЦИИ
+
+# функция, преобразующая .psd массив numpy в оттенках серого
+def psd_to_grayscale(psd, layer=None):
+    psd = get_image(psd, layer)
+    return cv2.cvtColor(psd, cv2.COLOR_RGB2GRAY)

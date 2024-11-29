@@ -20,6 +20,7 @@ from consts import Grid
 import lib.analyse.thirds as thirds
 import lib.helpers as helpers
 import lib.helpers.psd as psd
+import lib.helpers.emphasis as emphasis
 
 ###########
 
@@ -34,7 +35,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='psd_tools')
 ###########
 
 
-file = 'small'
+file = 'emphasis'
 
 # image – открытый файл .psd
 image = utility.open_psd_file(file)
@@ -46,4 +47,9 @@ width, height = image.size
 # print(psd.get_area_ratio(image, 'background'))
 # print(thirds.check_impress_all(image, 'center'))
 
-thirds.show_image_with_grid(image)
+# thirds.show_image_with_grid(image)
+
+# print(thirds.init_grid(image))
+
+# print(saliency.normalize_map(image))
+print(emphasis.normalize_map(image))

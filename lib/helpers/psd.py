@@ -1,6 +1,7 @@
 from psd_tools import PSDImage
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 # функция, открывающая файл .psd
 def open_psd_file(file_path):
@@ -27,8 +28,11 @@ def get_layers(psd, out=[]):
 # функция поиска слоя по имени
 def get_layer(psd, layer_name):
     for layer in psd:
-        if layer.name == layer_name:
-            return layer
+        if layer.is_group():
+            return get_layer(layer, layer_name)
+        else:
+            if layer.name == layer_name:
+                return layer
     return None
 
 # функция, возвращающая композицию слоёв или слой по имени в виде numpy 
@@ -37,7 +41,11 @@ def get_image(psd, layer_name=None):
     if layer_name: 
         layer = get_layer(psd, layer_name)
         if layer is None: raise Exception('Выбранного слоя не существует')
+        
+        return np.array(layer.composite(psd.bbox, color=(0,0,0)))
     return np.array(psd.composite())
+
+
 
 ##############
 
@@ -104,3 +112,31 @@ def get_shades(psd, layer=None):
 def psd_to_grayscale(psd, layer=None):
     psd = get_image(psd, layer)
     return cv2.cvtColor(psd, cv2.COLOR_RGB2GRAY)
+
+
+
+##############
+
+## ВИЗУАЛИЗАЦИЯ
+
+# функция, визуализирующая изображение
+def visualize(psd, layer=None, gray=None):
+    psd = get_image(psd, layer)
+    if gray is None: plt.imshow(psd)
+    else: plt.imshow(psd, cmap='gray')
+    # plt.axis('off')
+
+
+    fig, ax = plt.subplots()
+
+    # Устанавливаем цвет фона
+    fig.patch.set_facecolor('lightblue')  # Цвет фона всей фигуры
+    ax.set_facecolor('lightyellow')       # Цвет фона за пределами изображения
+
+    # Отображаем изображение
+    ax.imshow(psd, cmap='viridis')
+
+    # Убираем оси для чистого вида (опционально)
+    ax.axis('off')
+
+    plt.show()

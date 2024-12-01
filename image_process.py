@@ -35,7 +35,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='psd_tools')
 ###########
 
 
-file = 'emphasis'
+file = 'test/bp'
 
 # image – открытый файл .psd
 image = utility.open_psd_file(file)
@@ -52,4 +52,9 @@ width, height = image.size
 # print(thirds.init_grid(image))
 
 # print(saliency.normalize_map(image))
-print(emphasis.normalize_map(image))
+# emphasis.get_weights_map(image, emphasis.normalize_map(image))
+
+
+# print(psd.psd_to_grayscale(image, 'body'))
+# print(psd.get_image(image, 'body'))
+print(psd.visualize(image, 'body'))

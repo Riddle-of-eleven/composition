@@ -2,6 +2,7 @@ from psd_tools import PSDImage
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import math
 
 # функция, открывающая файл .psd
 def open_psd_file(file_path):
@@ -85,6 +86,24 @@ def get_layer_coordinates(psd, layer_name):
     else:
         print('Не удалось получить координаты объекта')
         return None
+
+
+# функция, вычисляющая угол наклона линии по сторонам треугольника (половинки прямоугольника) из слоя
+def get_line_angle(psd, layer_name):
+    layer = get_layer(psd, layer_name)
+    # стороны
+    width = layer.width
+    height = layer.height
+    if height == 1: # в случае абсолютно ровной линии (иначе будет считать доли градуса из-за 1 пикселя)
+        return 0
+    else:
+        hypotenuse = math.sqrt(width ** 2 + height ** 2)
+        print(width, height, hypotenuse)
+        # косинус угла
+        cos_angle = (width ** 2 + hypotenuse ** 2 - height ** 2) / (2 * width * hypotenuse)
+        # угол в градусах
+        angle_radians = math.acos(cos_angle)
+        return math.degrees(angle_radians)
 
 
 ##############

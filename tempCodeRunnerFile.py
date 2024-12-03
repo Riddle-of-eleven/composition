@@ -1,2 +1,2 @@
-
-# print(thirds.init_grid(image))
+tems():
+#     print(index, thirds.interpre

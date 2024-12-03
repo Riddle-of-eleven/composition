@@ -161,14 +161,37 @@ def check_rectangle(image, layer_name):
         A = [layer.left, layer.top]
         B = [layer.left + layer.width, layer.top]
         D = [layer.left, layer.top + layer.height]
+        
+        a = [rect['x1'], rect['y1']]
+        b = [rect['x2'], rect['y1']]
+        d = [rect['x1'], rect['y2']]
+
+        # переделать, прости господи
+        return {
+            'vert': {
+                'Aa': A[1] - a[1],
+                'Ad': A[1] - d[1],
+                'Dd': D[1] - d[1],
+                'Da': D[1] - a[1],
+            },
+            'hor': {
+                'Aa': A[0] - a[0],
+                'Ab': A[0] - b[0],
+                'Bb': B[0] - b[0],
+                'Ba': B[0] - a[0],
+            }
+        }
     return rectangle
 # функция проверки нахождения во всех прямоугольниках
 def check_rectangles(image, layer_name):
-    return 'абоба'
-
+    grid = init_grid(image)['rectangle']
+    check = check_rectangle(image, layer_name)
+    return [
+        check(rect) for rect in grid
+    ]
 
 # функция, дающая интерпретацию положения объекта на основе данных о положении относительно линии
-def interpret(points=None, range=None):
+def interpret(points=None, range=None, rectangle=None):
     if points:
         a1, a2, a3, a4 = points
         if (not a1 and not a2 and not a3 and not a4): return 'Объект не находится ни в одной точке'
@@ -180,11 +203,22 @@ def interpret(points=None, range=None):
             if a4: str += '\n-нижняя левая'
             return str
     if range:
-        if (range[0][0] > 0) and (range[1][1] < 0): return 'Объект внутри области'
+        if (range[0][0] >= 0) and (range[1][1] <= 0): return 'Объект внутри области'
         elif (range[0][0] < 0) and (range[1][1] > 0): return 'Объект выходит за пределы области с обеих сторон'
         elif ((range[0][0] < 0) and (range[0][1] < 0)) or ((range[1][0] > 0) and (range[1][1] > 0)): return 'Объект не пересекает область'
-        elif (range[0][0] > 0) and (range[0][1] > 0): return 'Объект пересекает область справа/снизу'
-        elif (range[1][0] < 0) and (range[1][1] < 0): return 'Объект пересекает область слева/сверху'
+        elif (range[0][0] >= 0) and (range[0][1] >= 0): return 'Объект пересекает область справа/снизу'
+        elif (range[1][0] <= 0) and (range[1][1] <= 0): return 'Объект пересекает область слева/сверху'
+        else: return 'Объект не пересекает область'
+    if rectangle:
+        v = rectangle['vert']
+        h = rectangle['hor']
+        if (v['Aa'] >= 0) and (v['Dd'] <= 0) and (h['Aa'] >= 0) and (h['Bb'] <= 0): return 'Объект внутри прямоугольника'
+        elif (v['Aa'] < 0) and (v['Dd'] > 0) and (h['Aa'] < 0) and (h['Bb'] > 0): return 'Объект больше прямоугольника и обрамляет его'
+        elif (v['Aa'] <= 0) and (v['Da'] >= 0) and (h['Aa'] <= 0) and (h['Ba'] >= 0): return 'Объект пересекает прямоугольник слева и сверху'
+        elif (v['Aa'] >= 0) and (v['Ad'] <= 0) and (h['Aa'] >= 0) and (h['Ab'] <= 0): return 'Объект пересекает прямоугольник справа и снизу'
+        elif (v['Aa'] >= 0) and (v['Ad'] <= 0) and (h['Aa'] <= 0) and (h['Ba'] >= 0): return 'Объект пересекает прямоугольник слева и снизу'
+        elif (v['Aa'] <= 0) and (v['Da'] >= 0) and (h['Aa'] >= 0) and (h['Ab'] <= 0): return 'Объект пересекает прямоугольник справа и сверху'
+        else: return 'Объект не пересекает прямоугольник'
 
 
 
@@ -208,6 +242,24 @@ def evaluate_composition_center(image, n=1):
         # прямоугольники
         rectangles = check_rectangles(image, f'center{index}')
 
+        # должно быть возвращаемое значение
+
+
+
+###########
+
+## ГОРИЗОНТ
+
+# функция, вычисляющая угол наклона горизонта
+def horizon_angle(image):
+    return psd.get_line_angle(image, 'horizon')
+# функция, проверяющая нахождения горизонта в пределах линий сетки
+def check_horizon(image):
+    grid = init_grid(image)['grid']
+    return {
+        'top': interpret(range=check_line(image, 'horizon', grid)('ht')),
+        'bottom': interpret(range=check_line(image, 'horizon', grid)('hb'))
+    }
 
 ###########
 
@@ -227,24 +279,25 @@ def show_image_with_grid(image):
 
     for index, row in enumerate(canvas):
         # замена элементов ряда в соответствии с индексами столбцов
+        # здесь в цикле и условии были <= и >=
 
         # левая треть
-        grid_vl = grid['grid']['vl']['display']
+        grid_vl = grid['grid']['vl']['range']
         vl = grid_vl[0]
-        while vl <= grid_vl[1]:
+        while vl < grid_vl[1]:
             row[vl] = 0
             vl += 1
         # правая треть
-        grid_vr = grid['grid']['vr']['display']
+        grid_vr = grid['grid']['vr']['range']
         vr = grid_vr[0]
-        while vr <= grid_vr[1]:
+        while vr < grid_vr[1]:
             row[vr] = 0
             vr += 1
         
-        grid_ht = grid['grid']['ht']['display']
-        grid_hb = grid['grid']['hb']['display']
+        grid_ht = grid['grid']['ht']['range']
+        grid_hb = grid['grid']['hb']['range']
 
-        if (grid_ht[0] - 1 <= index <= grid_ht[1] - 1) or (grid_hb[0] - 1 <= index <= grid_hb[1] - 1):
+        if (grid_ht[0] - 1 < index <= grid_ht[1] - 1) or (grid_hb[0] - 1 < index <= grid_hb[1] - 1):
             # замена ряда целиком на 0
             canvas[index] = list(map(lambda x: 0, row))
     

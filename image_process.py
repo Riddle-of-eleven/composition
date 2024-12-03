@@ -35,7 +35,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='psd_tools')
 ###########
 
 
-file = 'cat'
+file = 'landscape'
 
 # image – открытый файл .psd
 image = utility.open_psd_file(file)
@@ -60,4 +60,51 @@ width, height = image.size
 # print(psd.visualize(image, 'body'))
 
 
-thirds.evaluate_composition_center(image, 3)
+# thirds.evaluate_composition_center(image, 3)
+
+## ВНИМАНИЕ!!!!!! Отображаемая сетка не совпадает с той, которая для расчётов 
+
+### СЕТКА
+# инициализация сетки изображения (дефолтной)
+grid = thirds.init_grid(image)
+
+# визуализация изображения с учётом сетки
+# thirds.show_image_with_grid(image)
+
+
+### ОБЪЕКТ (ЦЕНТР)
+# положение центра
+center_position = psd.get_layer_coordinates(image, 'center')
+# проверка расположения в паверпоинтах
+center_impress = thirds.check_impresses(image, 'center')
+# print(thirds.interpret(points=center_impress))
+# проверка расположения по линиям
+center_line = thirds.check_lines(image, 'center')
+# for index, line in center_line.items():
+#     print(index, thirds.interpret(range=line))
+# проверка расположения по прямоугольникам
+center_rectangle = thirds.check_rectangles(image, 'center')
+# for rect in center_rectangle:
+#     print(thirds.interpret(rectangle=rect))
+
+
+
+### ГОРИЗОНТ
+# положение горизонта
+horizon_position = psd.get_layer_coordinates(image, 'horizon')
+# угол наклона
+horizon_angle = thirds.horizon_angle(image)
+# проверка расположения по линиям сетки
+horizon_ev = thirds.check_horizon(image)
+
+
+
+### ПРОЧИЕ ДАННЫЕ ПО СЛОЯМ
+# соотношение площади неба и изображения
+sky_area_ratio = psd.get_area_ratio(image, 'sky')
+# то же самое про землю
+ground_area_ratio = psd.get_area_ratio(image, 'ground')
+# и про центр композиционный
+center_area_ratio = psd.get_area_ratio(image, 'center')
+
+# print(center_area_ratio)

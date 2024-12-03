@@ -1,2 +1,2 @@
 
-# thirds.show_image_with_g
+# print(thirds.init_grid(image))

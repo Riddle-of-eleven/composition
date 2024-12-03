@@ -29,9 +29,8 @@ def get_layers(psd, out=[]):
 def get_layer(psd, layer_name):
     for layer in psd:
         if layer.is_group():
-            return get_layer(layer, layer_name)
-        else:
-            if layer.name == layer_name:
+            layer = get_layer(layer, layer_name)
+        if (layer is not None) and (layer.name == layer_name):
                 return layer
     return None
 
@@ -122,21 +121,12 @@ def psd_to_grayscale(psd, layer=None):
 # функция, визуализирующая изображение
 def visualize(psd, layer=None, gray=None):
     psd = get_image(psd, layer)
+
+    fig, _ = plt.subplots() # подчёркивание для корректной деструктуризации кортежа
+    fig.patch.set_facecolor('lightblue') # фон окна
+
     if gray is None: plt.imshow(psd)
     else: plt.imshow(psd, cmap='gray')
-    # plt.axis('off')
-
-
-    fig, ax = plt.subplots()
-
-    # Устанавливаем цвет фона
-    fig.patch.set_facecolor('lightblue')  # Цвет фона всей фигуры
-    ax.set_facecolor('lightyellow')       # Цвет фона за пределами изображения
-
-    # Отображаем изображение
-    ax.imshow(psd, cmap='viridis')
-
-    # Убираем оси для чистого вида (опционально)
-    ax.axis('off')
-
+    
+    plt.axis('off')
     plt.show()

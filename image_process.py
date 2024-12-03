@@ -35,7 +35,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='psd_tools')
 ###########
 
 
-file = 'test/bp'
+file = 'cat'
 
 # image – открытый файл .psd
 image = utility.open_psd_file(file)
@@ -57,4 +57,7 @@ width, height = image.size
 
 # print(psd.psd_to_grayscale(image, 'body'))
 # print(psd.get_image(image, 'body'))
-print(psd.visualize(image, 'body'))
+# print(psd.visualize(image, 'body'))
+
+
+thirds.evaluate_composition_center(image, 3)

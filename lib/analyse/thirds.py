@@ -155,8 +155,13 @@ def check_lines(image, layer_name):
     }
 
 # функция проверки нахождения объекта в прямоугольнике
-def check_rectangle(image, layer_name, rect):
-    return 'абоба'
+def check_rectangle(image, layer_name):
+    def rectangle(rect):
+        layer = psd.get_layer(image, layer_name)
+        A = [layer.left, layer.top]
+        B = [layer.left + layer.width, layer.top]
+        D = [layer.left, layer.top + layer.height]
+    return rectangle
 # функция проверки нахождения во всех прямоугольниках
 def check_rectangles(image, layer_name):
     return 'абоба'
@@ -195,7 +200,6 @@ def evaluate_composition_center(image, n=1):
         if center: centers.update({i: center})
 
     evaluate_centers = dict()
-    # нуждается в оптимизации
     for index, center in centers.items():
         # паверпоинты импрессы
         points = check_impresses(image, f'center{index}')

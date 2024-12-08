@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 layer_name = 'emphasis'
 
+# определение значимости пипеткой с карты
+
 # функция, получающая и нормализующая значения карты 255..0 в 0..1
 def normalize_map(image):
     image = psd.psd_to_grayscale(image, layer_name)

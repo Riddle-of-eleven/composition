@@ -98,7 +98,7 @@ def get_line_angle(psd, layer_name):
         return 0
     else:
         hypotenuse = math.sqrt(width ** 2 + height ** 2)
-        print(width, height, hypotenuse)
+        # print(width, height, hypotenuse)
         # косинус угла
         cos_angle = (width ** 2 + hypotenuse ** 2 - height ** 2) / (2 * width * hypotenuse)
         # угол в градусах

@@ -1,2 +1,1 @@
-tems():
-#     print(index, thirds.interpre
+e

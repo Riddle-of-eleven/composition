@@ -190,6 +190,31 @@ def check_rectangles(image, layer_name):
         check(rect) for rect in grid
     ]
 
+
+# площадь пересечения объекта с областью ()
+def range_intersection(image, layer_name, line):
+    # line – это часть grid, которая именно grid, то есть vl, vr
+    grid_range = line['range']
+    gray = psd.psd_to_grayscale(image, layer_name)
+    layer_area = psd.get_layer_area(image, layer_name)
+    color_pixels = 0
+    for i, row in enumerate(gray):
+        for j in range(grid_range[0], grid_range[1]+1):
+            if (row[j] != 255): color_pixels += 1
+    return [
+        color_pixels,
+        round(color_pixels / layer_area, 2),
+    ]
+# функция проверки пересечения со всеми линиями
+def range_intersections(image, layer_name):
+    grid = init_grid(image)['grid']
+    res = dict()
+    for index, line in grid.items():
+        res[index] = range_intersection(image, layer_name, line)
+    return res
+
+
+
 # функция, дающая интерпретацию положения объекта на основе данных о положении относительно линии
 def interpret(points=None, range=None, rectangle=None):
     if points:
@@ -242,7 +267,23 @@ def evaluate_composition_center(image, n=1):
         # прямоугольники
         rectangles = check_rectangles(image, f'center{index}')
 
-        # должно быть возвращаемое значение
+        # точки
+        evaluate_centers[f'center{index}'] = {}
+        evaluate_centers[f'center{index}']['points'] = points
+        
+        # линии
+        l = {}
+        for i, el in lines.items():
+            l[i] = interpret(range=el)
+        evaluate_centers[f'center{index}']['lines'] = l
+
+        # прямоугольники
+        r = {}
+        for i, el in enumerate(rectangles):
+            r[i] = interpret(rectangle=el)
+        evaluate_centers[f'center{index}']['rectangles'] = r
+        
+    return evaluate_centers
 
 
 
@@ -275,7 +316,7 @@ def show_image_with_grid(image):
     # здесь происходит заполнение пустого массива (изображения) белыми пикселями
     canvas = [[255 for col in range(image.width)] for row in range(image.height)]
 
-    print(image.width)
+    # print(image.width)
 
     for index, row in enumerate(canvas):
         # замена элементов ряда в соответствии с индексами столбцов
